@@ -172,5 +172,29 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Option<FunctionProf
         sum_percentage,
         cum_time,
         cum_percentage,
-    });
+    ));
+}
+
+pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<String, ProfileParsingError> {
+    if !profile_file_path.exists() {
+        return Err(ProfileParsingError::InvalidFormat(format!(
+            "Profile file does not exist: {}",
+            profile_file_path.display()
+        )));
+    }
+
+    if !profile_file_path.is_file() {
+        return Err(ProfileParsingError::InvalidFormat(format!(
+            "Path is not a file: {}",
+            profile_file_path.display()
+        )));
+    }
+
+    let profile_data = fs::read_to_string(profile_file_path)?;
+
+    if profile_data.trim().is_empty() {
+        return Err(ProfileParsingError::EmptyFile);
+    }
+
+    Ok(profile_data)
 }
