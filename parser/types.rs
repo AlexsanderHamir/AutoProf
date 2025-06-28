@@ -32,15 +32,10 @@ impl From<std::io::Error> for ProfileParsingError {
 pub struct Header {
     pub(crate) file_name: String,
 
-    // TODO: Consider using an enum for profile_type instead of String
-    // This would provide type safety and prevent invalid profile types
     profile_type: String,
 
-    // TODO: Consider using chrono::DateTime<Utc> instead of String for better type safety
-    // and built-in parsing/formatting capabilities
     time_stamp: String,
 
-    // TODO: These fields could be public if they need to be accessed directly
     parallelism: Parallelism,
     total_nodes: TotalNodes,
 }
@@ -63,8 +58,6 @@ impl Header {
     }
 }
 
-// TODO: Consider making this struct public if it needs to be accessed outside
-// TODO: Add #[derive(Clone, Copy)] if the fields are small and frequently copied
 // Profiling info line: "Duration: 2.01s, Total samples = 10.90s (542.34%)"
 //
 // - `duration`: wall-clock time profiled (2.01 seconds).
@@ -73,7 +66,6 @@ impl Header {
 //   indicating ~5.4 CPU cores used concurrently.
 #[derive(Debug)]
 pub struct Parallelism {
-    // TODO: Consider using f64 or Duration for better type safety and calculations
     duration: String,
     total_samples_time: String,
     total_samples_percentage: String,
@@ -93,7 +85,6 @@ impl Parallelism {
     }
 }
 
-// TODO: Consider making this struct public if it needs to be accessed outside
 // Profiling info line: "Showing nodes accounting for 10.90s, 100% of 10.90s total"
 //
 // This means the profiling report displays function call nodes whose cumulative CPU time
@@ -102,8 +93,6 @@ impl Parallelism {
 // indicating a complete profile without omitted samples.
 #[derive(Debug)]
 pub struct TotalNodes {
-    // TODO: Consider using f64 for numerical values instead of String
-    // This would enable mathematical operations and better type safety
     collected_nodes_accounting_time: String,
     collected_nodes_accounting_percentage: String,
     total_nodes_accounting_time: String,
@@ -123,9 +112,6 @@ impl TotalNodes {
     }
 }
 
-// TODO: Consider making fields public or adding getter methods if they need to be accessed
-// TODO: Add #[derive(Clone)] if this struct needs to be cloned
-// TODO: Consider using f64 for numerical fields instead of String for better type safety
 #[derive(Debug)]
 pub struct FunctionProfileData {
     function_name: String,
