@@ -3,7 +3,7 @@ use std::path::PathBuf;
 mod parser;
 
 fn main() {
-    let profile_file_path = PathBuf::from("tag_name_example/text/BenchmarkGenPool/BenchmarkGenPool_cpu.txt");
+    let profile_file_path = PathBuf::from("tag_name_example/text/BenchmarkGenPool/BenchmarkGenPool_mutex.txt");
 
     match parser::profile_parsing::extract_profile_data(&profile_file_path) {
         Ok((header, functions_profile_data)) => {

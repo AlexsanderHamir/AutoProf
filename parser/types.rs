@@ -5,6 +5,7 @@ pub enum ProfileParsingError {
     FileReadError(std::io::Error),
     EmptyFile,
     InvalidFormat(String),
+    IncompleteHeader(String),
 }
 
 impl fmt::Display for ProfileParsingError {
@@ -13,6 +14,7 @@ impl fmt::Display for ProfileParsingError {
             ProfileParsingError::FileReadError(err) => write!(f, "Failed to read profile file: {}", err),
             ProfileParsingError::EmptyFile => write!(f, "Profile file is empty"),
             ProfileParsingError::InvalidFormat(msg) => write!(f, "Invalid profile format: {}", msg),
+            ProfileParsingError::IncompleteHeader(msg) => write!(f, "Incomplete header: {}", msg),
         }
     }
 }
