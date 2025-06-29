@@ -52,7 +52,10 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         .trim();
 
     let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
-    let duration = number_regex.find(duration_str).map(|m| m.as_str().parse::<f64>().unwrap()).unwrap_or(0.0);
+    let duration = number_regex
+        .find(duration_str)
+        .and_then(|m| m.as_str().parse::<f64>().ok())
+        .unwrap_or(0.0);
 
     let total_samples_line = duration_samples_line
         .split('=')
@@ -70,7 +73,7 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
 
     let total_samples_time = number_regex
         .find(total_samples_time_str)
-        .map(|m| m.as_str().parse::<f64>().unwrap())
+        .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
 
     let total_samples_percentage_str = total_samples_line
@@ -111,7 +114,7 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
     let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
     let collected_nodes_accounting_time = number_regex
         .find(collected_nodes_accounting_time_str)
-        .map(|m| m.as_str().parse::<f64>().unwrap())
+        .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
 
     let collected_nodes_accounting_percentage_str = collected_nodes_accounting_time_line
@@ -133,7 +136,7 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
 
     let total_nodes_accounting_time = number_regex
         .find(total_nodes_accounting_time_str)
-        .map(|m| m.as_str().parse::<f64>().unwrap())
+        .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
 
     Ok((
@@ -172,7 +175,7 @@ pub fn build_header(profile_data_lines: &[&str]) -> Result<(Header, usize), Prof
 
 pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<FunctionProfileData>, ProfileParsingError> {
     if line_parts.len() < 6 {
-        return Ok(None);
+        return Err(ProfileParsingError::IncompleteBody("Invalid line parts".to_string()));
     }
 
     let function_name = {
@@ -187,14 +190,29 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
     let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     let flat_time_str = number_regex.find(line_parts[0]).map(|m| m.as_str()).unwrap_or("0");
-    let flat_time = flat_time_str.parse::<f64>().unwrap(); // TODO: COULD PANIC
+    let flat_time = flat_time_str
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     let cum_time_str = number_regex.find(line_parts[3]).map(|m| m.as_str()).unwrap_or("0");
-    let cum_time = cum_time_str.parse::<f64>().unwrap(); // TODO: COULD PANIC
+    let cum_time = cum_time_str
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
-    let flat_percentage = line_parts[1].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
-    let sum_percentage = line_parts[2].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
-    let cum_percentage = line_parts[4].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
+    let flat_percentage = line_parts[1]
+        .trim_end_matches('%')
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+
+    let sum_percentage = line_parts[2]
+        .trim_end_matches('%')
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+
+    let cum_percentage = line_parts[4]
+        .trim_end_matches('%')
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     Ok(Some(FunctionProfileData::new(
         function_name,
