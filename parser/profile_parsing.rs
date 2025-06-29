@@ -18,9 +18,7 @@ pub fn extract_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<
 
     let (header, header_size) = build_header(&profile_data_lines);
 
-    let body_lines = profile_data_lines
-        .get(header_size..)
-        .ok_or_else(|| ProfileParsingError::InvalidFormat("No body found in profile data".to_string()))?;
+    let body_lines = profile_data_lines.get(header_size..).ok_or_else(|| ProfileParsingError::InvalidFormat("No body found in profile data".to_string()))?;
 
     let mut functions_profile_data: Vec<FunctionProfileData> = Vec::with_capacity(body_lines.len() - EMPTY_LINE_COUNT);
     for line in body_lines {

@@ -3,6 +3,9 @@ name = "gocortex"
 version = "0.1.0"
 edition = "2024"
 
+[dependencies]
+regex = "1.11"
+
 [dev-dependencies]
 criterion = "0.6.0"
 

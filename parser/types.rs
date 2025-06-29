@@ -8,10 +8,7 @@ pub enum ProfileParsingError {
 }
 
 impl fmt::Display for ProfileParsingError {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ProfileParsingError::FileReadError(err) => write!(f, "Failed to read profile file: {}", err),
             ProfileParsingError::EmptyFile => write!(f, "Profile file is empty"),
@@ -34,27 +31,13 @@ pub struct Header {
 
     profile_type: String,
 
-    time_stamp: String,
-
     parallelism: Parallelism,
     total_nodes: TotalNodes,
 }
 
 impl Header {
-    pub fn new(
-        file_name: String,
-        profile_type: String,
-        time_stamp: String,
-        parallelism: Parallelism,
-        total_nodes: TotalNodes,
-    ) -> Self {
-        Self {
-            file_name,
-            profile_type,
-            time_stamp,
-            parallelism,
-            total_nodes,
-        }
+    pub fn new(file_name: String, profile_type: String, parallelism: Parallelism, total_nodes: TotalNodes) -> Self {
+        Self { file_name, profile_type, parallelism, total_nodes }
     }
 }
 
@@ -66,22 +49,14 @@ impl Header {
 //   indicating ~5.4 CPU cores used concurrently.
 #[derive(Debug)]
 pub struct Parallelism {
-    duration: String,
-    total_samples_time: String,
-    total_samples_percentage: String,
+    duration: f64,
+    total_samples_time: f64,
+    total_samples_percentage: f64,
 }
 
 impl Parallelism {
-    pub fn new(
-        duration: String,
-        total_samples_time: String,
-        total_samples_percentage: String,
-    ) -> Self {
-        Self {
-            duration,
-            total_samples_time,
-            total_samples_percentage,
-        }
+    pub fn new(duration: f64, total_samples_time: f64, total_samples_percentage: f64) -> Self {
+        Self { duration, total_samples_time, total_samples_percentage }
     }
 }
 
@@ -93,21 +68,17 @@ impl Parallelism {
 // indicating a complete profile without omitted samples.
 #[derive(Debug)]
 pub struct TotalNodes {
-    collected_nodes_accounting_time: String,
-    collected_nodes_accounting_percentage: String,
-    total_nodes_accounting_time: String,
+    collected_nodes_accounting: f64,
+    collected_nodes_accounting_percentage: f64,
+    total_nodes_accounting: f64,
 }
 
 impl TotalNodes {
-    pub fn new(
-        collected_nodes_accounting_time: String,
-        collected_nodes_accounting_percentage: String,
-        total_nodes_accounting_time: String,
-    ) -> Self {
+    pub fn new(collected_nodes_accounting: f64, collected_nodes_accounting_percentage: f64, total_nodes_accounting: f64) -> Self {
         Self {
-            collected_nodes_accounting_time,
+            collected_nodes_accounting,
             collected_nodes_accounting_percentage,
-            total_nodes_accounting_time,
+            total_nodes_accounting,
         }
     }
 }
@@ -115,28 +86,21 @@ impl TotalNodes {
 #[derive(Debug)]
 pub struct FunctionProfileData {
     function_name: String,
-    flat_time: String,
-    flat_percentage: String,
-    sum_percentage: String,
-    cum_time: String,
-    cum_percentage: String,
+    flat: f64,
+    flat_percentage: f64,
+    sum_percentage: f64,
+    cum: f64,
+    cum_percentage: f64,
 }
 
 impl FunctionProfileData {
-    pub fn new(
-        function_name: String,
-        flat_time: String,
-        flat_percentage: String,
-        sum_percentage: String,
-        cum_time: String,
-        cum_percentage: String,
-    ) -> Self {
+    pub fn new(function_name: String, flat: f64, flat_percentage: f64, sum_percentage: f64, cum: f64, cum_percentage: f64) -> Self {
         Self {
             function_name,
-            flat_time,
+            flat,
             flat_percentage,
             sum_percentage,
-            cum_time,
+            cum,
             cum_percentage,
         }
     }
