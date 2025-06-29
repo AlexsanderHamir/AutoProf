@@ -13,7 +13,7 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn test_missing_header_fields() {
+    fn test_invalid_profile_header() {
         fn subtest(
             name: &str,
             expected_err_msg: &str,
@@ -44,4 +44,7 @@ mod tests {
         subtest("missing_duration", MISSING_DURATION, extract_profile_data, 3);
         subtest("missing_nodes_accounting", MISSING_TOTAL_NODES_PREFIX, extract_profile_data, 4);
     }
+
+    #[test]
+    fn test_invalid_profile_body() {}
 }

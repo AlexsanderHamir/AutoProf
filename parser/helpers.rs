@@ -51,7 +51,7 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         .ok_or(ProfileParsingError::IncompleteHeader("Missing duration value".to_string()))?
         .trim();
 
-    let number_regex = Regex::new(r"^[\d.]+").unwrap();
+    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
     let duration = number_regex.find(duration_str).map(|m| m.as_str().parse::<f64>().unwrap()).unwrap_or(0.0);
 
     let total_samples_line = duration_samples_line
@@ -108,7 +108,7 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
         .ok_or(ProfileParsingError::IncompleteHeader("Missing comma".to_string()))?
         .trim();
 
-    let number_regex = Regex::new(r"^[\d.]+").unwrap();
+    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
     let collected_nodes_accounting_time = number_regex
         .find(collected_nodes_accounting_time_str)
         .map(|m| m.as_str().parse::<f64>().unwrap())
@@ -170,9 +170,9 @@ pub fn build_header(profile_data_lines: &[&str]) -> Result<(Header, usize), Prof
     Ok((header_struct, header_size))
 }
 
-pub fn collect_function_profile_data(line_parts: &[&str]) -> Option<FunctionProfileData> {
+pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<FunctionProfileData>, ProfileParsingError> {
     if line_parts.len() < 6 {
-        return None;
+        return Ok(None);
     }
 
     let function_name = {
@@ -184,7 +184,7 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Option<FunctionProf
         parts.join(" ")
     };
 
-    let number_regex = Regex::new(r"^[\d.]+").unwrap();
+    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     let flat_time_str = number_regex.find(line_parts[0]).map(|m| m.as_str()).unwrap_or("0");
     let flat_time = flat_time_str.parse::<f64>().unwrap();
@@ -196,14 +196,14 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Option<FunctionProf
     let sum_percentage = line_parts[2].trim_end_matches('%').parse::<f64>().unwrap();
     let cum_percentage = line_parts[4].trim_end_matches('%').parse::<f64>().unwrap();
 
-    Some(FunctionProfileData::new(
+    Ok(Some(FunctionProfileData::new(
         function_name,
         flat_time,
         flat_percentage,
         sum_percentage,
         cum_time,
         cum_percentage,
-    ))
+    )))
 }
 
 pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<String, ProfileParsingError> {
