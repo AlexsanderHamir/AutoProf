@@ -20,7 +20,11 @@ pub fn extract_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<
 
     let body_lines = profile_data_lines
         .get(header_size..)
-        .ok_or_else(|| ProfileParsingError::InvalidFormat("No body found in profile data".to_string()))?;
+        .ok_or(ProfileParsingError::IncompleteBody("No body found in profile data".to_string()))?;
+
+    if body_lines.is_empty() {
+        return Err(ProfileParsingError::IncompleteBody("Empty body".to_string()));
+    }
 
     let mut functions_profile_data: Vec<FunctionProfileData> = Vec::with_capacity(body_lines.len() - EMPTY_LINE_COUNT);
     for line in body_lines {
@@ -35,6 +39,10 @@ pub fn extract_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<
         if let Some(data) = collect_function_profile_data(&line_parts)? {
             functions_profile_data.push(data);
         }
+    }
+
+    if functions_profile_data.is_empty() {
+        return Err(ProfileParsingError::IncompleteBody("Empty functions profile data".to_string()));
     }
 
     Ok((header, functions_profile_data))

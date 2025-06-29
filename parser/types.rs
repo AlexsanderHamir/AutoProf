@@ -6,6 +6,7 @@ pub enum ProfileParsingError {
     EmptyFile,
     InvalidFormat(String),
     IncompleteHeader(String),
+    IncompleteBody(String),
 }
 
 impl fmt::Display for ProfileParsingError {
@@ -15,6 +16,7 @@ impl fmt::Display for ProfileParsingError {
             ProfileParsingError::EmptyFile => write!(f, "Profile file is empty"),
             ProfileParsingError::InvalidFormat(msg) => write!(f, "Invalid profile format: {}", msg),
             ProfileParsingError::IncompleteHeader(msg) => write!(f, "Incomplete header: {}", msg),
+            ProfileParsingError::IncompleteBody(msg) => write!(f, "Incomplete body: {}", msg),
         }
     }
 }
@@ -39,7 +41,12 @@ pub struct Header {
 
 impl Header {
     pub fn new(file_name: String, profile_type: String, parallelism: Parallelism, total_nodes: TotalNodes) -> Self {
-        Self { file_name, profile_type, parallelism, total_nodes }
+        Self {
+            file_name,
+            profile_type,
+            parallelism,
+            total_nodes,
+        }
     }
 }
 
@@ -58,7 +65,11 @@ pub struct Parallelism {
 
 impl Parallelism {
     pub fn new(duration: f64, total_samples_time: f64, total_samples_percentage: f64) -> Self {
-        Self { duration, total_samples_time, total_samples_percentage }
+        Self {
+            duration,
+            total_samples_time,
+            total_samples_percentage,
+        }
     }
 }
 

@@ -187,14 +187,14 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
     let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     let flat_time_str = number_regex.find(line_parts[0]).map(|m| m.as_str()).unwrap_or("0");
-    let flat_time = flat_time_str.parse::<f64>().unwrap();
+    let flat_time = flat_time_str.parse::<f64>().unwrap(); // TODO: COULD PANIC
 
     let cum_time_str = number_regex.find(line_parts[3]).map(|m| m.as_str()).unwrap_or("0");
-    let cum_time = cum_time_str.parse::<f64>().unwrap();
+    let cum_time = cum_time_str.parse::<f64>().unwrap(); // TODO: COULD PANIC
 
-    let flat_percentage = line_parts[1].trim_end_matches('%').parse::<f64>().unwrap();
-    let sum_percentage = line_parts[2].trim_end_matches('%').parse::<f64>().unwrap();
-    let cum_percentage = line_parts[4].trim_end_matches('%').parse::<f64>().unwrap();
+    let flat_percentage = line_parts[1].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
+    let sum_percentage = line_parts[2].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
+    let cum_percentage = line_parts[4].trim_end_matches('%').parse::<f64>().unwrap(); // TODO: COULD PANIC
 
     Ok(Some(FunctionProfileData::new(
         function_name,

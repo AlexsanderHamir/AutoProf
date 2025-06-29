@@ -46,5 +46,32 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_profile_body() {}
+    fn test_invalid_profile_body() {
+        fn subtest(
+            name: &str,
+            expected_err_msg: &str,
+            test_fn: impl FnOnce(&PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError>,
+            profile_file_path: &str,
+        ) {
+            println!("Running subtest: {}", name);
+            let profile_file_path = PathBuf::from(profile_file_path);
+            let result = test_fn(&profile_file_path);
+            match result {
+                Ok(_) => panic!("Expected error but test_fn returned Ok"),
+                Err(e) => {
+                    let err_msg = e.to_string();
+                    assert_eq!(err_msg, expected_err_msg, "Error message mismatch");
+                    println!("Test passed: {}", name);
+                }
+            }
+        }
+
+        subtest("empty_body", EMPTY_BODY, extract_profile_data, "tag_tests/cpu_missing_body.txt");
+        subtest(
+            "empty_body_lines",
+            EMPTY_FUNCTIONS_PROFILE_DATA,
+            extract_profile_data,
+            "tag_tests/cpu_emptyLines_body.txt",
+        );
+    }
 }
