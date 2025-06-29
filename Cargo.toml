@@ -3,7 +3,16 @@ name = "gocortex"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[dev-dependencies]
+criterion = "0.6.0"
+
+[[bench]]
+name = "parser_benchmark"
+harness = false
+
+[lib]
+name = "gocortex"
+path = "lib.rs"
 
 [[bin]]
 name = "gocortex"
