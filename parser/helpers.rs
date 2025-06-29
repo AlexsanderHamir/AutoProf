@@ -4,13 +4,13 @@ use crate::parser::types::{FunctionProfileData, Header, Parallelism, ProfilePars
 
 pub fn get_header(profile_data_lines: &[&str]) -> (Vec<String>, usize) {
     let profile_type_line = profile_data_lines.get(1).unwrap_or_else(|| {
-        eprintln!("Expected profile type on line 2, but it was missing.");
-        process::exit(1);
+        exit_with_error("Expected profile type on line 2, but it was missing.");
+        unreachable!()
     });
 
     let profile_type = profile_type_line.strip_prefix("Type: ").unwrap_or_else(|| {
-        eprintln!("Invalid profile type format: expected line to start with \"Type: \"");
-        process::exit(1);
+        exit_with_error("Invalid profile type format: expected line to start with \"Type: \"");
+        unreachable!()
     });
 
     let header_size = if profile_type == "cpu" { 6 } else { 5 };
@@ -18,12 +18,12 @@ pub fn get_header(profile_data_lines: &[&str]) -> (Vec<String>, usize) {
     let header = profile_data_lines
         .get(0..header_size)
         .unwrap_or_else(|| {
-            eprintln!(
+            exit_with_error(&format!(
                 "No header found: expected at least {} lines, found {}",
                 header_size,
                 profile_data_lines.len()
-            );
-            process::exit(1);
+            ));
+            unreachable!()
         })
         .iter()
         .map(|s| s.to_string())
@@ -34,30 +34,30 @@ pub fn get_header(profile_data_lines: &[&str]) -> (Vec<String>, usize) {
 
 pub fn get_header_basic_fields(header: &[String]) -> (String, String, String) {
     let file_name_line = header.get(0).unwrap_or_else(|| {
-        eprintln!("No file name found");
-        process::exit(1);
+        exit_with_error("No file name found");
+        unreachable!()
     });
     let file_name = file_name_line.strip_prefix("File: ").unwrap_or_else(|| {
-        eprintln!("Invalid file line format");
-        process::exit(1);
+        exit_with_error("Invalid file line format");
+        unreachable!()
     });
 
     let profile_type_line = header.get(1).unwrap_or_else(|| {
-        eprintln!("No profile type found");
-        process::exit(1);
+        exit_with_error("No profile type found");
+        unreachable!()
     });
     let profile_type = profile_type_line.strip_prefix("Type: ").unwrap_or_else(|| {
-        eprintln!("Invalid profile type format");
-        process::exit(1);
+        exit_with_error("Invalid profile type format");
+        unreachable!()
     });
 
     let profile_timestamp_line = header.get(2).unwrap_or_else(|| {
-        eprintln!("No time stamp found");
-        process::exit(1);
+        exit_with_error("No time stamp found");
+        unreachable!()
     });
     let profile_timestamp = profile_timestamp_line.strip_prefix("Time: ").unwrap_or_else(|| {
-        eprintln!("Invalid time stamp format");
-        process::exit(1);
+        exit_with_error("Invalid time stamp format");
+        unreachable!()
     });
 
     (file_name.to_string(), profile_type.to_string(), profile_timestamp.to_string())
@@ -65,21 +65,21 @@ pub fn get_header_basic_fields(header: &[String]) -> (String, String, String) {
 
 pub fn get_header_parallelism_info(header: &[String]) -> (String, String, String) {
     let duration_samples_line = header.get(3).unwrap_or_else(|| {
-        eprintln!("No duration found");
-        process::exit(1);
+        exit_with_error("No duration found");
+        unreachable!()
     });
 
     let duration = duration_samples_line
         .strip_prefix("Duration: ")
         .unwrap_or_else(|| {
-            eprintln!("Invalid duration format");
-            process::exit(1);
+            exit_with_error("Invalid duration format");
+            unreachable!()
         })
         .split(',')
         .next()
         .unwrap_or_else(|| {
-            eprintln!("Missing duration value");
-            process::exit(1);
+            exit_with_error("Missing duration value");
+            unreachable!()
         })
         .trim();
 
@@ -87,8 +87,8 @@ pub fn get_header_parallelism_info(header: &[String]) -> (String, String, String
         .split('=')
         .nth(1)
         .unwrap_or_else(|| {
-            eprintln!("No '=' found in duration samples line");
-            process::exit(1);
+            exit_with_error("No '=' found in duration samples line");
+            unreachable!()
         })
         .trim();
 
@@ -96,8 +96,8 @@ pub fn get_header_parallelism_info(header: &[String]) -> (String, String, String
         .split('(')
         .next()
         .unwrap_or_else(|| {
-            eprintln!("Missing opening parenthesis in total samples time");
-            process::exit(1);
+            exit_with_error("Missing opening parenthesis in total samples time");
+            unreachable!()
         })
         .trim();
 
@@ -105,8 +105,8 @@ pub fn get_header_parallelism_info(header: &[String]) -> (String, String, String
         .split('(')
         .nth(1)
         .unwrap_or_else(|| {
-            eprintln!("No opening parenthesis found in total samples percentage");
-            process::exit(1);
+            exit_with_error("No opening parenthesis found in total samples percentage");
+            unreachable!()
         })
         .trim_end_matches(')')
         .trim_end_matches('%')
@@ -117,21 +117,21 @@ pub fn get_header_parallelism_info(header: &[String]) -> (String, String, String
 
 pub fn get_header_total_nodes_info(header: &[String]) -> (String, String, String) {
     let total_nodes_line = header.get(4).unwrap_or_else(|| {
-        eprintln!("No total nodes found");
-        process::exit(1);
+        exit_with_error("No total nodes found");
+        unreachable!()
     });
 
     let collected_nodes_accounting_time_line = total_nodes_line.strip_prefix("Showing nodes accounting for ").unwrap_or_else(|| {
-        eprintln!("Invalid total nodes format");
-        process::exit(1);
+        exit_with_error("Invalid total nodes format");
+        unreachable!()
     });
 
     let collected_nodes_accounting_time = collected_nodes_accounting_time_line
         .split(',')
         .next()
         .unwrap_or_else(|| {
-            eprintln!("Missing comma");
-            process::exit(1);
+            exit_with_error("Missing comma");
+            unreachable!()
         })
         .trim();
 
@@ -139,14 +139,14 @@ pub fn get_header_total_nodes_info(header: &[String]) -> (String, String, String
         .split(',')
         .nth(1)
         .unwrap_or_else(|| {
-            eprintln!("Missing percentage part");
-            process::exit(1);
+            exit_with_error("Missing percentage part");
+            unreachable!()
         })
         .split('%')
         .next()
         .unwrap_or_else(|| {
-            eprintln!("Missing % sign");
-            process::exit(1);
+            exit_with_error("Missing % sign");
+            unreachable!()
         })
         .trim();
 
@@ -154,8 +154,8 @@ pub fn get_header_total_nodes_info(header: &[String]) -> (String, String, String
         .split("of")
         .nth(1)
         .unwrap_or_else(|| {
-            eprintln!("Missing 'of' part");
-            process::exit(1);
+            exit_with_error("Missing 'of' part");
+            unreachable!()
         })
         .trim();
 
@@ -234,4 +234,9 @@ pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<Stri
     }
 
     Ok(profile_data)
+}
+
+pub fn exit_with_error(message: &str) {
+    eprintln!("Error: {}", message);
+    process::exit(1);
 }
