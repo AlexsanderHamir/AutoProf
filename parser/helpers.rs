@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf};
 
 use crate::parser::{
-    globals::{CPU_HEADER_SIZE, NUMBER_REGEX, REST_HEADER_SIZE},
+    globals::{CPU_HEADER_SIZE, REST_HEADER_SIZE},
     types::{FunctionProfileData, Header, Parallelism, ProfileParsingError, TotalNodes},
 };
 
@@ -95,15 +95,12 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
                 "Line doesn't belong to total nodes, missing prefix".to_string(),
             ))?;
 
-    let collected_nodes_accounting_time_str = collected_nodes_accounting_time_line
+    let collected_nodes_accounting_time = collected_nodes_accounting_time_line
         .split(',')
         .next()
         .ok_or(ProfileParsingError::IncompleteHeader("Missing comma".to_string()))?
-        .trim();
-
-    let collected_nodes_accounting_time = NUMBER_REGEX
-        .find(collected_nodes_accounting_time_str)
-        .and_then(|m| m.as_str().parse::<f64>().ok())
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+        .parse::<f64>()
         .unwrap_or(0.0);
 
     let collected_nodes_accounting_percentage_str = collected_nodes_accounting_time_line
@@ -117,16 +114,14 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
 
     let collected_nodes_accounting_percentage = collected_nodes_accounting_percentage_str.parse::<f64>().unwrap_or(0.0);
 
-    let total_nodes_accounting_time_str = collected_nodes_accounting_time_line
+    let total_nodes_accounting_time = collected_nodes_accounting_time_line
         .split("of")
         .nth(1)
         .ok_or(ProfileParsingError::IncompleteHeader("Missing 'of' part".to_string()))?
-        .trim();
-
-    let total_nodes_accounting_time = NUMBER_REGEX
-        .find(total_nodes_accounting_time_str)
-        .and_then(|m| m.as_str().parse::<f64>().ok())
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+        .parse::<f64>()
         .unwrap_or(0.0);
+
 
     Ok((
         collected_nodes_accounting_time,
@@ -176,15 +171,13 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         parts.join(" ")
     };
 
-    let flat_time = NUMBER_REGEX
-        .find(line_parts[0])
-        .map_or("0", |m| m.as_str())
+    let flat_time = line_parts[0]
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
-    let cum_time = NUMBER_REGEX
-        .find(line_parts[3])
-        .map_or("0", |m| m.as_str())
+    let cum_time = line_parts[3]
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
