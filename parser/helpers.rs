@@ -51,8 +51,7 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         .ok_or(ProfileParsingError::IncompleteHeader("Missing duration value".to_string()))?
         .trim();
 
-    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
-    let duration = number_regex
+    let duration = NUMBER_REGEX
         .find(duration_str)
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
@@ -71,7 +70,7 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         ))?
         .trim();
 
-    let total_samples_time = number_regex
+    let total_samples_time = NUMBER_REGEX
         .find(total_samples_time_str)
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
