@@ -41,17 +41,14 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         .get(3)
         .ok_or(ProfileParsingError::IncompleteHeader("Missing duration line".to_string()))?;
 
-    let duration_str = duration_samples_line
+    let duration_time = duration_samples_line
         .strip_prefix("Duration: ")
         .ok_or(ProfileParsingError::IncompleteHeader("Invalid duration format".to_string()))?
         .split(',')
         .next()
         .ok_or(ProfileParsingError::IncompleteHeader("Missing duration value".to_string()))?
-        .trim();
-
-    let duration = NUMBER_REGEX
-        .find(duration_str)
-        .and_then(|m| m.as_str().parse::<f64>().ok())
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+        .parse::<f64>()
         .unwrap_or(0.0);
 
     let total_samples_line = duration_samples_line
@@ -60,20 +57,17 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         .ok_or(ProfileParsingError::IncompleteHeader("No '=' found in duration samples line".to_string()))?
         .trim();
 
-    let total_samples_time_str = total_samples_line
+    let total_samples_time = total_samples_line
         .split('(')
         .next()
         .ok_or(ProfileParsingError::IncompleteHeader(
             "Missing opening parenthesis in total samples time".to_string(),
         ))?
-        .trim();
-
-    let total_samples_time = NUMBER_REGEX
-        .find(total_samples_time_str)
-        .and_then(|m| m.as_str().parse::<f64>().ok())
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+        .parse::<f64>()
         .unwrap_or(0.0);
 
-    let total_samples_percentage_str = total_samples_line
+    let total_samples_percentage = total_samples_line
         .split('(')
         .nth(1)
         .ok_or(ProfileParsingError::IncompleteHeader(
@@ -81,11 +75,10 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
         ))?
         .trim_end_matches(')')
         .trim_end_matches('%')
-        .trim();
+        .parse::<f64>()
+        .unwrap_or(0.0);
 
-    let total_samples_percentage = total_samples_percentage_str.parse::<f64>().unwrap_or(0.0);
-
-    Ok((duration, total_samples_time, total_samples_percentage))
+    Ok((duration_time, total_samples_time, total_samples_percentage))
 }
 
 pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Result<(f64, f64, f64), ProfileParsingError> {
