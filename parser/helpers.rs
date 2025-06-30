@@ -111,8 +111,7 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
         .ok_or(ProfileParsingError::IncompleteHeader("Missing comma".to_string()))?
         .trim();
 
-    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
-    let collected_nodes_accounting_time = number_regex
+    let collected_nodes_accounting_time = NUMBER_REGEX
         .find(collected_nodes_accounting_time_str)
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
@@ -134,7 +133,7 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
         .ok_or(ProfileParsingError::IncompleteHeader("Missing 'of' part".to_string()))?
         .trim();
 
-    let total_nodes_accounting_time = number_regex
+    let total_nodes_accounting_time = NUMBER_REGEX
         .find(total_nodes_accounting_time_str)
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
