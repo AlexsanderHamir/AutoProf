@@ -1,7 +1,5 @@
 use std::{fs, path::PathBuf};
 
-use regex::Regex;
-
 use crate::parser::{
     globals::{CPU_HEADER_SIZE, NUMBER_REGEX, REST_HEADER_SIZE},
     types::{FunctionProfileData, Header, Parallelism, ProfileParsingError, TotalNodes},
@@ -185,13 +183,15 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         parts.join(" ")
     };
 
-    let flat_time_str = NUMBER_REGEX.find(line_parts[0]).map_or("0", |m| m.as_str());
-    let flat_time = flat_time_str
+    let flat_time = NUMBER_REGEX
+        .find(line_parts[0])
+        .map_or("0", |m| m.as_str())
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
-    let cum_time_str = NUMBER_REGEX.find(line_parts[3]).map_or("0", |m| m.as_str());
-    let cum_time = cum_time_str
+    let cum_time = NUMBER_REGEX
+        .find(line_parts[3])
+        .map_or("0", |m| m.as_str())
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
