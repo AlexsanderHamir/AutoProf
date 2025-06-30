@@ -1,11 +1,10 @@
 use std::path::PathBuf;
 
 use crate::parser::{
+    globals::EMPTY_LINE_COUNT,
     helpers::*,
     types::{FunctionProfileData, Header, ProfileParsingError},
 };
-
-const EMPTY_LINE_COUNT: usize = 1;
 
 pub fn extract_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data = validate_and_get_profile_data(profile_file_path)?;

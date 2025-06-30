@@ -2,10 +2,10 @@ use std::{fs, path::PathBuf};
 
 use regex::Regex;
 
-use crate::parser::types::{FunctionProfileData, Header, Parallelism, ProfileParsingError, TotalNodes};
-
-const CPU_HEADER_SIZE: usize = 6;
-const REST_HEADER_SIZE: usize = 5;
+use crate::parser::{
+    globals::{CPU_HEADER_SIZE, NUMBER_REGEX, REST_HEADER_SIZE},
+    types::{FunctionProfileData, Header, Parallelism, ProfileParsingError, TotalNodes},
+};
 
 pub fn get_header(profile_data_lines: &[&str]) -> Result<(Vec<String>, usize, String), ProfileParsingError> {
     let profile_type_line = profile_data_lines
@@ -187,14 +187,12 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         parts.join(" ")
     };
 
-    let number_regex = Regex::new(r"^[\d.]+").map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
-
-    let flat_time_str = number_regex.find(line_parts[0]).map(|m| m.as_str()).unwrap_or("0");
+    let flat_time_str = NUMBER_REGEX.find(line_parts[0]).map_or("0", |m| m.as_str());
     let flat_time = flat_time_str
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
-    let cum_time_str = number_regex.find(line_parts[3]).map(|m| m.as_str()).unwrap_or("0");
+    let cum_time_str = NUMBER_REGEX.find(line_parts[3]).map_or("0", |m| m.as_str());
     let cum_time = cum_time_str
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
