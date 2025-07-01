@@ -122,7 +122,6 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
         .parse::<f64>()
         .unwrap_or(0.0);
 
-
     Ok((
         collected_nodes_accounting_time,
         collected_nodes_accounting_percentage,
@@ -176,11 +175,6 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
-    let cum_time = line_parts[3]
-        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
-        .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
-
     let flat_percentage = line_parts[1]
         .trim_end_matches('%')
         .parse::<f64>()
@@ -188,6 +182,11 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
 
     let sum_percentage = line_parts[2]
         .trim_end_matches('%')
+        .parse::<f64>()
+        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+
+    let cum_time = line_parts[3]
+        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
         .parse::<f64>()
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
@@ -222,7 +221,6 @@ pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<Stri
     }
 
     let profile_data = fs::read_to_string(profile_file_path)?;
-
     if profile_data.trim().is_empty() {
         return Err(ProfileParsingError::EmptyFile);
     }

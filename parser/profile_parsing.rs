@@ -6,9 +6,12 @@ use crate::parser::{
     types::{FunctionProfileData, Header, ProfileParsingError},
 };
 
-pub fn extract_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
+pub fn parse_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data = validate_and_get_profile_data(profile_file_path)?;
+    extract_profile_data(&profile_data)
+}
 
+pub fn extract_profile_data(profile_data: &String) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data_lines = profile_data.lines().collect::<Vec<&str>>();
 
     if profile_data_lines.is_empty() {

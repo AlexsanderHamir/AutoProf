@@ -7,7 +7,7 @@ mod tests {
     use crate::{constants::*, helpers::*};
 
     use gocortex::parser::{
-        profile_parsing::extract_profile_data,
+        profile_parsing::parse_profile_data,
         types::{FunctionProfileData, Header, ProfileParsingError},
     };
     use std::path::PathBuf;
@@ -40,9 +40,9 @@ mod tests {
             }
         }
 
-        subtest("missing_profile_type_line", MISSING_PROFILE_TYPE_PREFIX, extract_profile_data, 1);
-        subtest("missing_duration", MISSING_DURATION, extract_profile_data, 3);
-        subtest("missing_nodes_accounting", MISSING_TOTAL_NODES_PREFIX, extract_profile_data, 4);
+        subtest("missing_profile_type_line", MISSING_PROFILE_TYPE_PREFIX, parse_profile_data, 1);
+        subtest("missing_duration", MISSING_DURATION, parse_profile_data, 3);
+        subtest("missing_nodes_accounting", MISSING_TOTAL_NODES_PREFIX, parse_profile_data, 4);
     }
 
     #[test]
@@ -66,11 +66,11 @@ mod tests {
             }
         }
 
-        subtest("empty_body", EMPTY_BODY, extract_profile_data, "tag_tests/cpu_missing_body.txt");
+        subtest("empty_body", EMPTY_BODY, parse_profile_data, "tag_tests/cpu_missing_body.txt");
         subtest(
             "empty_body_lines",
             EMPTY_FUNCTIONS_PROFILE_DATA,
-            extract_profile_data,
+            parse_profile_data,
             "tag_tests/cpu_emptyLines_body.txt",
         );
     }
