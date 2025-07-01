@@ -29,6 +29,7 @@ pub fn extract_profile_data(profile_data: &str) -> Result<(Header, Vec<FunctionP
 
     let mut functions_profile_data: Vec<FunctionProfileData> = Vec::with_capacity(body_lines.len() - EMPTY_LINE_COUNT);
     for line in body_lines {
+        // TODO: This entire loop is a bottleneck CPU wise.
         let line = line.trim();
 
         if line.is_empty() {
