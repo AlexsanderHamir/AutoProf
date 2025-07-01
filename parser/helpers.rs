@@ -1,11 +1,11 @@
 use std::{fs, path::PathBuf};
 
 use crate::parser::{
-    globals::{CPU_HEADER_SIZE, REST_HEADER_SIZE},
+    globals::{CPU_HEADER_SIZE, FUNCTION_NAME_INDEX, INLINE_WORD, REST_HEADER_SIZE},
     types::{FunctionProfileData, Header, Parallelism, ProfileParsingError, TotalNodes},
 };
 
-pub fn get_header(profile_data_lines: &[&str]) -> Result<(Vec<String>, usize, String), ProfileParsingError> {
+pub fn get_header<'a>(profile_data_lines: &'a [&str]) -> Result<(&'a [&'a str], usize, &'a str), ProfileParsingError> {
     let profile_type_line = profile_data_lines
         .get(1)
         .ok_or(ProfileParsingError::IncompleteHeader("Missing profile type line".to_string()))?;
@@ -20,23 +20,20 @@ pub fn get_header(profile_data_lines: &[&str]) -> Result<(Vec<String>, usize, St
         .get(0..header_size)
         .ok_or(ProfileParsingError::IncompleteHeader("Incomplete header".to_string()))?;
 
-    let header = header_slice.iter().map(|s| s.to_string()).collect();
-
-    Ok((header, header_size, profile_type.to_string()))
+    Ok((header_slice, header_size, profile_type))
 }
-pub fn get_header_basic_fields(header: &[String]) -> Result<String, ProfileParsingError> {
-    let file_name_line = header
-        .get(0)
-        .ok_or(ProfileParsingError::IncompleteHeader("Missing profile name".to_string()))?;
 
-    let file_name = file_name_line
+pub fn get_header_basic_fields<'a>(header: &'a [&str]) -> Result<&'a str, ProfileParsingError> {
+    let file_name = header
+        .get(0)
+        .ok_or(ProfileParsingError::IncompleteHeader("Missing profile name".to_string()))?
         .strip_prefix("File: ")
         .ok_or(ProfileParsingError::IncompleteHeader("Invalid file line format".to_string()))?;
 
-    Ok(file_name.to_string())
+    Ok(file_name)
 }
 
-pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64), ProfileParsingError> {
+pub fn get_header_parallelism_info(header: &[&str]) -> Result<(f64, f64, f64), ProfileParsingError> {
     let duration_samples_line = header
         .get(3)
         .ok_or(ProfileParsingError::IncompleteHeader("Missing duration line".to_string()))?;
@@ -81,7 +78,7 @@ pub fn get_header_parallelism_info(header: &[String]) -> Result<(f64, f64, f64),
     Ok((duration_time, total_samples_time, total_samples_percentage))
 }
 
-pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Result<(f64, f64, f64), ProfileParsingError> {
+pub fn get_header_total_nodes_info(header: &[&str], profile_type: &str) -> Result<(f64, f64, f64), ProfileParsingError> {
     let total_nodes_line_index = if profile_type == "cpu" { 4 } else { 3 };
 
     let total_nodes_line = header
@@ -103,16 +100,15 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
         .parse::<f64>()
         .unwrap_or(0.0);
 
-    let collected_nodes_accounting_percentage_str = collected_nodes_accounting_time_line
+    let collected_nodes_accounting_percentage = collected_nodes_accounting_time_line
         .split(',')
         .nth(1)
         .ok_or(ProfileParsingError::IncompleteHeader("Missing percentage part".to_string()))?
         .split('%')
         .next()
         .ok_or(ProfileParsingError::IncompleteHeader("Missing % sign".to_string()))?
-        .trim();
-
-    let collected_nodes_accounting_percentage = collected_nodes_accounting_percentage_str.parse::<f64>().unwrap_or(0.0);
+        .parse::<f64>()
+        .unwrap_or(0.0);
 
     let total_nodes_accounting_time = collected_nodes_accounting_time_line
         .split("of")
@@ -130,21 +126,21 @@ pub fn get_header_total_nodes_info(header: &[String], profile_type: &str) -> Res
 }
 
 pub fn build_header(profile_data_lines: &[&str]) -> Result<(Header, usize), ProfileParsingError> {
-    let (header, header_size, profile_type) = get_header(&profile_data_lines)?;
-    let file_name = get_header_basic_fields(&header)?;
+    let (header, header_size, profile_type) = get_header(profile_data_lines)?;
+    let file_name = get_header_basic_fields(header)?;
 
     let parallelism = if profile_type == "cpu" {
-        let (duration, total_samples_time, total_samples_percentage) = get_header_parallelism_info(&header)?;
+        let (duration, total_samples_time, total_samples_percentage) = get_header_parallelism_info(header)?;
         Parallelism::new(duration, total_samples_time, total_samples_percentage)
     } else {
         Parallelism::new(0.0, 0.0, 0.0)
     };
 
     let (collected_nodes_accounting_time, collected_nodes_accounting_percentage, total_nodes_accounting_time) =
-        get_header_total_nodes_info(&header, &profile_type)?;
+        get_header_total_nodes_info(header, profile_type)?;
     let header_struct = Header::new(
-        file_name,
-        profile_type,
+        file_name.to_string(),
+        profile_type.to_string(),
         parallelism,
         TotalNodes::new(
             collected_nodes_accounting_time,
@@ -161,13 +157,10 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         return Err(ProfileParsingError::IncompleteBody("Invalid line parts".to_string()));
     }
 
-    let function_name = {
-        let parts = if let Some(&"(inline)") = line_parts.last() {
-            &line_parts[5..line_parts.len() - 1]
-        } else {
-            &line_parts[5..]
-        };
-        parts.join(" ")
+    let function_name = if let Some(&"(inline)") = line_parts.last() {
+        &line_parts[FUNCTION_NAME_INDEX..line_parts.len() - INLINE_WORD].join(" ")
+    } else {
+        &line_parts[FUNCTION_NAME_INDEX..].join(" ")
     };
 
     let flat_time = line_parts[0]
@@ -196,7 +189,7 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
 
     Ok(Some(FunctionProfileData::new(
-        function_name,
+        function_name.to_string(),
         flat_time,
         flat_percentage,
         sum_percentage,
