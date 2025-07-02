@@ -42,30 +42,25 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         &line_parts[FUNCTION_NAME_INDEX..].join(" ")
     };
 
-    let flat_time = line_parts[0]
-        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+    let flat_time = trim_non_numeric_end(line_parts[0])
         .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+        .map_err(|e| ProfileParsingError::InvalidFormat(format!("Flat time: {}", e.to_string())))?;
 
-    let flat_percentage = line_parts[1]
-        .trim_end_matches('%')
+    let flat_percentage = trim_non_numeric_end(line_parts[1])
         .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+        .map_err(|e| ProfileParsingError::InvalidFormat(format!("Flat percentage: {}", e.to_string())))?;
 
-    let sum_percentage = line_parts[2]
-        .trim_end_matches('%')
+    let sum_percentage = trim_non_numeric_end(line_parts[2])
         .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+        .map_err(|e| ProfileParsingError::InvalidFormat(format!("Sum percentage: {}", e.to_string())))?;
 
-    let cum_time = line_parts[3]
-        .trim_end_matches(|c| c == 's' || c == 'm' || c == 'h')
+    let cum_time = trim_non_numeric_end(line_parts[3])
         .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+        .map_err(|e| ProfileParsingError::InvalidFormat(format!("Cum time: {}", e.to_string())))?;
 
-    let cum_percentage = line_parts[4]
-        .trim_end_matches('%')
+    let cum_percentage = trim_non_numeric_end(line_parts[4])
         .parse::<f64>()
-        .map_err(|e| ProfileParsingError::InvalidFormat(e.to_string()))?;
+        .map_err(|e| ProfileParsingError::InvalidFormat(format!("Cum percentage: {}", e.to_string())))?;
 
     Ok(Some(FunctionProfileData::new(
         function_name.to_string(),
@@ -75,6 +70,21 @@ pub fn collect_function_profile_data(line_parts: &[&str]) -> Result<Option<Funct
         cum_time,
         cum_percentage,
     )))
+}
+
+fn trim_non_numeric_end(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    let mut end = s.len();
+
+    while end > 0 {
+        let c = bytes[end - 1] as char;
+        if c.is_digit(10) || c == '.' {
+            break;
+        }
+        end -= 1;
+    }
+
+    &s[..end]
 }
 
 pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<String, ProfileParsingError> {
