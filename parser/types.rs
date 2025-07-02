@@ -31,12 +31,10 @@ impl From<std::io::Error> for ProfileParsingError {
 
 #[derive(Debug)]
 pub struct Header {
-    pub(crate) file_name: String,
-
-    profile_type: String,
-
-    parallelism: Parallelism,
-    total_nodes: TotalNodes,
+    pub file_name: String,
+    pub profile_type: String,
+    pub parallelism: Parallelism,
+    pub total_nodes: TotalNodes,
 }
 
 impl Header {
@@ -71,6 +69,13 @@ impl Parallelism {
             total_samples_percentage,
         }
     }
+
+    pub fn format_summary(&self) -> String {
+        format!(
+            "Duration: {:.2}s, Total samples = {:.2}s ({:.2}%)\n",
+            self.duration, self.total_samples_time, self.total_samples_percentage
+        )
+    }
 }
 
 // Profiling info line: "Showing nodes accounting for 10.90s, 100% of 10.90s total"
@@ -93,6 +98,13 @@ impl TotalNodes {
             collected_nodes_accounting_percentage,
             total_nodes_accounting,
         }
+    }
+
+    pub fn format_summary(&self) -> String {
+        format!(
+            "Showing nodes accounting for {:.2}s, {:.2}% of {:.2}s total\n",
+            self.collected_nodes_accounting, self.collected_nodes_accounting_percentage, self.total_nodes_accounting
+        )
     }
 }
 
