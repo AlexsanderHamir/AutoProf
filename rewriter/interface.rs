@@ -4,6 +4,7 @@ pub fn rewrite_profile_data(header_string: String, functions_profile_data: Vec<F
     let mut rewritten_profile_data = String::new();
 
     rewritten_profile_data.push_str(&header_string);
+    rewritten_profile_data.push_str("\n");
 
     rewritten_profile_data.push_str(&format!(
         "{:<8} {:<8} {:<10} {:<8} {:<10} {}\n",
