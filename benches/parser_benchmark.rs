@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use gocortex::parser::profile_parsing::parse_profile_data;
+use gocortex::parser::interface::parse_profile_data;
 use std::path::PathBuf;
 
 pub fn parser_benchmark(c: &mut Criterion) {

@@ -7,7 +7,7 @@ mod tests {
     use crate::{constants::*, helpers::*};
 
     use gocortex::parser::{
-        profile_parsing::parse_profile_data,
+        interface::parse_profile_data,
         types::{FunctionProfileData, Header, ProfileParsingError},
     };
     use std::path::PathBuf;

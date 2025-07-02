@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::parser::{
-    globals::EMPTY_LINE_COUNT,
+    globals::{CUM_MINIMUM, EMPTY_LINE_COUNT, SUM_MAXIMUM},
     helpers::*,
     types::{FunctionProfileData, Header, ProfileParsingError},
 };
@@ -37,9 +37,10 @@ pub fn extract_profile_data(profile_data: &str) -> Result<(Header, Vec<FunctionP
         }
 
         let line_parts = line.split_whitespace().collect::<Vec<&str>>();
-
         if let Some(data) = collect_function_profile_data(&line_parts)? {
-            functions_profile_data.push(data);
+            if data.sum_percentage <= SUM_MAXIMUM || data.cum_percentage >= CUM_MINIMUM {
+                functions_profile_data.push(data);
+            }
         }
     }
 

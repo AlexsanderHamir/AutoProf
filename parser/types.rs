@@ -98,12 +98,12 @@ impl TotalNodes {
 
 #[derive(Debug)]
 pub struct FunctionProfileData {
-    function_name: String,
-    flat: f64,
-    flat_percentage: f64,
-    sum_percentage: f64,
-    cum: f64,
-    cum_percentage: f64,
+    pub function_name: String,
+    pub flat: f64,
+    pub flat_percentage: f64,
+    pub sum_percentage: f64,
+    pub cum: f64,
+    pub cum_percentage: f64,
 }
 
 impl FunctionProfileData {
