@@ -1,11 +1,9 @@
-use crate::parser::types::{FunctionProfileData, Header};
+use crate::parser::types::FunctionProfileData;
 
-pub fn rewrite_profile_data(header: Header, functions_profile_data: Vec<FunctionProfileData>) -> String {
+pub fn rewrite_profile_data(header_string: String, functions_profile_data: Vec<FunctionProfileData>) -> String {
     let mut rewritten_profile_data = String::new();
 
-    rewritten_profile_data.push_str(&format!("Type: {}\n", header.profile_type));
-    rewritten_profile_data.push_str(&header.parallelism.format_summary());
-    rewritten_profile_data.push_str(&header.total_nodes.format_summary());
+    rewritten_profile_data.push_str(&header_string);
 
     rewritten_profile_data.push_str(&format!(
         "{:<8} {:<8} {:<10} {:<8} {:<10} {}\n",

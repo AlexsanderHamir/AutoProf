@@ -3,21 +3,21 @@ use std::path::PathBuf;
 use crate::parser::{
     globals::{CUM_MINIMUM, EMPTY_LINE_COUNT, SUM_MAXIMUM},
     helpers::*,
-    types::{FunctionProfileData, Header, ProfileParsingError},
+    types::{FunctionProfileData, ProfileParsingError},
 };
 
-pub fn parse_profile_data(profile_file_path: &PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
+pub fn parse_profile_data(profile_file_path: &PathBuf) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data = validate_and_get_profile_data(profile_file_path)?;
     extract_profile_data(&profile_data)
 }
 
-pub fn extract_profile_data(profile_data: &str) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError> {
+pub fn extract_profile_data(profile_data: &str) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data_lines = profile_data.lines().collect::<Vec<&str>>();
     if profile_data_lines.is_empty() {
         return Err(ProfileParsingError::EmptyFile);
     }
 
-    let (header, header_size) = build_header(&profile_data_lines)?;
+    let (header_string, header_size) = get_header_info(&profile_data_lines)?;
 
     let body_lines = profile_data_lines
         .get(header_size..)
@@ -48,5 +48,5 @@ pub fn extract_profile_data(profile_data: &str) -> Result<(Header, Vec<FunctionP
         return Err(ProfileParsingError::IncompleteBody("Empty functions profile data".to_string()));
     }
 
-    Ok((header, functions_profile_data))
+    Ok((header_string, functions_profile_data))
 }
