@@ -8,7 +8,7 @@ mod tests {
 
     use gocortex::parser::{
         interface::parse_profile_data,
-        types::{FunctionProfileData, Header, ProfileParsingError},
+        types::{FunctionProfileData, ProfileParsingError},
     };
     use std::path::PathBuf;
 
@@ -17,7 +17,7 @@ mod tests {
         fn subtest(
             name: &str,
             expected_err_msg: &str,
-            test_fn: impl FnOnce(&PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError>,
+            test_fn: impl FnOnce(&PathBuf) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError>,
             line_index: usize,
         ) {
             println!("Running subtest: {}", name);
@@ -31,7 +31,7 @@ mod tests {
             insert_line_at_index(&profile_file_path, line_index, &removed_line).expect("IO error");
 
             match result {
-                Ok(_) => panic!("Expected error but test_fn returned Ok"),
+                Ok(_) => panic!("Expected error but test_fn returned Ok, {}", name),
                 Err(e) => {
                     let err_msg = e.to_string();
                     assert_eq!(err_msg, expected_err_msg, "Error message mismatch");
@@ -50,7 +50,7 @@ mod tests {
         fn subtest(
             name: &str,
             expected_err_msg: &str,
-            test_fn: impl FnOnce(&PathBuf) -> Result<(Header, Vec<FunctionProfileData>), ProfileParsingError>,
+            test_fn: impl FnOnce(&PathBuf) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError>,
             profile_file_path: &str,
         ) {
             println!("Running subtest: {}", name);
