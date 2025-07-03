@@ -1,14 +1,14 @@
-pub const PROMPT: &str = "
+pub const PROMPT: &str = r#"
 INSTRUCTIONS:
-
-You will receive one or more Go pprof profiles in string format.
-
-Your task is to provide an analysis based on all input profiles.
-
-Based on CPU, memory, mutex, etc profiles, what can you tell me about my system ?
-Am I spending too much time in benchmark set up ?
-Am I forcing the runtime to do too much work ?
-Am I doing too many syscalls ?
-Am I doing too many context switches when it comes to golang runtime?
-Am I being inefficient in my code or system design ?
-";
+You will receive one or more Go pprof profiling outputs in raw string format, including CPU, memory allocation, mutex contention, blocking profiles, and goroutine traces.
+Your task is to analyze these profiles collectively and provide a detailed performance report covering:
+1. CPU usage hotspots — which functions or goroutines consume the most CPU time?
+2. Memory allocation patterns — are there excessive allocations or leaks?
+3. Mutex contention and blocking — is there significant contention or blocking causing slowdowns?
+4. Runtime inefficiencies — excessive syscalls, context switches, or GC pauses?
+5. Benchmark overhead — are benchmarks spending unnecessary time in setup or teardown?
+6. Potential code or design inefficiencies causing performance bottlenecks.
+7. Suggestions for improvements in code, runtime usage, or system configuration.
+Please provide your analysis as if you are a senior Go performance engineer reviewing production profiling data. Be concise but thorough, and reference specific profiling terms and metrics where appropriate.
+End your response with a summary of the top 3 action items to improve performance.
+"#;

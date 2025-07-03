@@ -26,7 +26,6 @@ pub fn rewrite_profile_data(header_string: String, functions_profile_data: Vec<F
     rewritten_profile_data
 }
 
-
 pub fn structure_profile_data(profile_data: &str) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data_lines = profile_data.lines().collect::<Vec<&str>>();
     if profile_data_lines.is_empty() {
@@ -170,4 +169,3 @@ pub fn validate_and_get_profile_string(profile_file_path: &PathBuf) -> Result<St
 
     Ok(profile_data)
 }
-

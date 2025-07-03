@@ -19,24 +19,14 @@ pub async fn get_analysis(profile_paths: Vec<PathBuf>) -> Result<String, Profile
     let final_prompt = create_profiles_prompt(profile_paths)?;
 
     let credentials = Credentials::from_env();
-    let messages = vec![
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::System,
-            content: Some("You're a golang performance analist".to_string()),
-            name: None,
-            function_call: None,
-            tool_call_id: None,
-            tool_calls: None,
-        },
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::User,
-            content: Some(final_prompt),
-            name: None,
-            function_call: None,
-            tool_call_id: None,
-            tool_calls: None,
-        },
-    ];
+    let messages = vec![ChatCompletionMessage {
+        role: ChatCompletionMessageRole::User,
+        content: Some(final_prompt),
+        name: None,
+        function_call: None,
+        tool_call_id: None,
+        tool_calls: None,
+    }];
 
     let chat_completion = ChatCompletion::builder("gpt-4.1-nano", messages.clone())
         .credentials(credentials.clone())
