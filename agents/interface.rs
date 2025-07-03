@@ -38,11 +38,14 @@ pub async fn get_analysis(profile_paths: Vec<PathBuf>) -> Result<String, Profile
         },
     ];
 
-    let chat_completion = ChatCompletion::builder("gpt-4o", messages.clone())
+    let chat_completion = ChatCompletion::builder("gpt-4.1-nano", messages.clone())
         .credentials(credentials.clone())
+        .max_tokens(32768u64)
+        .temperature(0.3)
         .create()
         .await
         .unwrap();
+
     let returned_message = chat_completion.choices.first().unwrap().message.clone();
 
     Ok(returned_message.content.unwrap_or_default())
