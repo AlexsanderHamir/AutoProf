@@ -1,16 +1,20 @@
 mod agents;
 mod parser;
+use crate::agents::interface::get_analysis;
+use dotenvy::dotenv;
 use std::path::PathBuf;
+use tokio::fs;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+
     let profile_file_paths = vec![PathBuf::from("tag_tests/cpu.txt"), PathBuf::from("tag_tests/mem.txt")];
 
-    match agents::interface::create_profiles_prompt(profile_file_paths) {
-        Ok(parser_results) => {
-            println!("{}", parser_results);
-        }
-        Err(e) => {
-            eprintln!("Error parsing profile data: {}", e);
-        }
+    match get_analysis(profile_file_paths).await {
+        Ok(analysis) => fs::write("AI.txt", analysis).await?,
+        Err(e) => eprintln!("Error running analysis: {}", e),
     }
+
+    Ok(())
 }
