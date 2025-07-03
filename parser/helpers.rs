@@ -27,7 +27,7 @@ pub fn rewrite_profile_data(header_string: String, functions_profile_data: Vec<F
 }
 
 
-pub fn extract_profile_data(profile_data: &str) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError> {
+pub fn structure_profile_data(profile_data: &str) -> Result<(String, Vec<FunctionProfileData>), ProfileParsingError> {
     let profile_data_lines = profile_data.lines().collect::<Vec<&str>>();
     if profile_data_lines.is_empty() {
         return Err(ProfileParsingError::EmptyFile);
@@ -148,7 +148,7 @@ fn trim_non_numeric_end(s: &str) -> &str {
     &s[..end]
 }
 
-pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<String, ProfileParsingError> {
+pub fn validate_and_get_profile_string(profile_file_path: &PathBuf) -> Result<String, ProfileParsingError> {
     if !profile_file_path.exists() {
         return Err(ProfileParsingError::InvalidFormat(format!(
             "Profile file does not exist: {}",
@@ -170,3 +170,4 @@ pub fn validate_and_get_profile_data(profile_file_path: &PathBuf) -> Result<Stri
 
     Ok(profile_data)
 }
+
