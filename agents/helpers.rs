@@ -4,6 +4,7 @@ use tiktoken_rs::get_bpe_from_model;
 use gocortex::parser::{interface::parse_profile_data, types::ProfileParsingError};
 use openai::chat::ChatCompletionMessage;
 
+// testing email github
 use crate::agents::globals::PROMPT;
 
 pub fn collect_parser_results(profile_paths: Vec<PathBuf>) -> Result<Vec<String>, ProfileParsingError> {
